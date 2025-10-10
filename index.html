@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Imperial Measurement Calculator</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			min-height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 20px;
+		}
+
+		.calculator {
+			background: white;
+			border-radius: 20px;
+			box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+			padding: 40px;
+			max-width: 500px;
+			width: 100%;
+		}
+
+		h1 {
+			text-align: center;
+			color: #333;
+			margin-bottom: 30px;
+			font-size: 24px;
+		}
+
+		.input-group {
+			margin-bottom: 20px;
+		}
+
+		label {
+			display: block;
+			margin-bottom: 8px;
+			color: #555;
+			font-weight: 600;
+		}
+
+		input[type="text"] {
+			width: 100%;
+			padding: 12px;
+			border: 2px solid #ddd;
+			border-radius: 8px;
+			font-size: 16px;
+			transition: border-color 0.3s;
+		}
+
+		input[type="text"]:focus {
+			outline: none;
+			border-color: #667eea;
+		}
+
+		.operation-buttons {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 10px;
+			margin-bottom: 20px;
+		}
+
+		button {
+			padding: 15px;
+			border: none;
+			border-radius: 8px;
+			font-size: 20px;
+			font-weight: bold;
+			cursor: pointer;
+			transition: all 0.3s;
+			color: white;
+		}
+
+		.op-btn {
+			background: #667eea;
+		}
+
+		.op-btn:hover {
+			background: #5568d3;
+			transform: translateY(-2px);
+			box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+		}
+
+		.op-btn:active {
+			transform: translateY(0);
+		}
+
+		.result {
+			background: #f8f9fa;
+			padding: 20px;
+			border-radius: 8px;
+			margin-top: 20px;
+			min-height: 60px;
+		}
+
+		.result-label {
+			color: #666;
+			font-size: 14px;
+			margin-bottom: 5px;
+		}
+
+		.result-value {
+			font-size: 24px;
+			font-weight: bold;
+			color: #333;
+			word-wrap: break-word;
+		}
+
+		.error {
+			color: #e74c3c;
+			font-size: 14px;
+			margin-top: 5px;
+		}
+
+		.help-text {
+			font-size: 12px;
+			color: #888;
+			margin-top: 5px;
+		}
+
+		.action-buttons {
+			display: flex;
+			gap: 10px;
+			margin-top: 15px;
+		}
+
+		.save-btn {
+			flex: 1;
+			background: #27ae60;
+			padding: 12px;
+			border-radius: 8px;
+			font-size: 16px;
+		}
+
+		.save-btn:hover {
+			background: #229954;
+		}
+
+		.clear-btn {
+			background: #e74c3c;
+			padding: 12px 20px;
+			border-radius: 8px;
+			font-size: 16px;
+		}
+
+		.clear-btn:hover {
+			background: #c0392b;
+		}
+
+		.history {
+			margin-top: 30px;
+			padding-top: 30px;
+			border-top: 2px solid #eee;
+		}
+
+		.history-title {
+			font-size: 18px;
+			font-weight: bold;
+			color: #333;
+			margin-bottom: 15px;
+		}
+
+		.history-list {
+			max-height: 300px;
+			overflow-y: auto;
+		}
+
+		.history-item {
+			background: #f8f9fa;
+			padding: 12px 15px;
+			border-radius: 8px;
+			margin-bottom: 10px;
+			font-size: 14px;
+			line-height: 1.6;
+			border-left: 4px solid #667eea;
+		}
+
+		.history-empty {
+			text-align: center;
+			color: #999;
+			padding: 20px;
+			font-style: italic;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="calculator">
+		<h1>Imperial Measurement Calculator</h1>
+
+		<div class="input-group">
+			<label for="measurement1">First Measurement</label>
+			<input type="text" id="measurement1" placeholder="e.g., 3' 6 1/2&quot; or 2.5' or 14&quot;">
+			<div class="help-text">Formats: 3' 6", 3.5', 6 1/2", 2' 4 3/8"</div>
+		</div>
+
+		<div class="input-group">
+			<label for="measurement2">Second Measurement</label>
+			<input type="text" id="measurement2" placeholder="e.g., 1' 2 3/4&quot; or 0.5' or 8&quot;">
+			<div class="help-text">Formats: 1' 8", 1.25', 10 3/4", 1' 2 1/16"</div>
+		</div>
+
+		<div class="operation-buttons">
+			<button class="op-btn" onclick="calculate('add')">+</button>
+			<button class="op-btn" onclick="calculate('subtract')">−</button>
+			<button class="op-btn" onclick="calculate('multiply')">×</button>
+			<button class="op-btn" onclick="calculate('divide')">÷</button>
+		</div>
+
+		<div class="result">
+			<div class="result-label">Result:</div>
+			<div class="result-value" id="result">—</div>
+			<div class="error" id="error"></div>
+			<div class="action-buttons">
+				<button class="save-btn" onclick="saveToHistory()" id="saveBtn" disabled>Save to History</button>
+				<button class="clear-btn" onclick="clearHistory()">Clear All</button>
+			</div>
+		</div>
+
+		<div class="history">
+			<div class="history-title">Calculation History</div>
+			<div class="history-list" id="historyList">
+				<div class="history-empty">No calculations saved yet</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		let calculationHistory = [];
+		let lastCalculation = null;
+
+		function gcd(a, b) {
+			a = Math.abs(a);
+			b = Math.abs(b);
+			while (b !== 0) {
+				let t = b;
+				b = a % b;
+				a = t;
+			}
+			return a;
+		}
+
+		function reduceFraction(num, den) {
+			const divisor = gcd(num, den);
+			return [num / divisor, den / divisor];
+		}
+
+		function parseImperialInput(input) {
+			input = input.trim();
+			let totalInches = 0;
+
+			// Pattern: feet (') and/or inches (")
+			const feetMatch = input.match(/(\d+\.?\d*|\d*\.?\d+)\s*'/);
+			const inchesMatch = input.match(/(\d+\.?\d*|\d*\.?\d+)?\s*(\d+\/\d+)?\s*"/);
+
+			if (feetMatch) {
+				totalInches += parseFloat(feetMatch[1]) * 12;
+			}
+
+			if (inchesMatch) {
+				let inchValue = 0;
+
+				// Whole number or decimal part
+				if (inchesMatch[1]) {
+					inchValue += parseFloat(inchesMatch[1]);
+				}
+
+				// Fraction part
+				if (inchesMatch[2]) {
+					const [fNum, fDen] = inchesMatch[2].split('/').map(Number);
+					inchValue += fNum / fDen;
+				}
+
+				totalInches += inchValue;
+			}
+
+			// If no feet or inches symbol, check if it's just a number (assume inches)
+			if (!feetMatch && !inchesMatch) {
+				// Check for mixed number format: "3 1/2" or just "3.5" or "1/2"
+				const mixedMatch = input.match(/^(\d+\.?\d*)?\s*(\d+\/\d+)?$/);
+				if (mixedMatch) {
+					let inchValue = 0;
+					if (mixedMatch[1]) {
+						inchValue += parseFloat(mixedMatch[1]);
+					}
+					if (mixedMatch[2]) {
+						const [fNum, fDen] = mixedMatch[2].split('/').map(Number);
+						inchValue += fNum / fDen;
+					}
+					totalInches += inchValue;
+				}
+			}
+
+			return totalInches;
+		}
+
+		function inchesToImperial(inches) {
+			const isNegative = inches < 0;
+			inches = Math.abs(inches);
+
+			// Round to nearest 1/64th
+			const sixtyFourths = Math.round(inches * 64);
+
+			const feet = Math.floor(sixtyFourths / (12 * 64));
+			const remainingSixtyFourths = sixtyFourths - (feet * 12 * 64);
+
+			const [num, den] = reduceFraction(remainingSixtyFourths, 64);
+
+			const wholeInches = Math.floor(num / den);
+			const fracNum = num % den;
+
+			let result = isNegative ? '−' : '';
+
+			if (feet > 0) {
+				result += `${feet}'`;
+				if (wholeInches > 0 || fracNum > 0) {
+					result += ' ';
+				}
+			}
+
+			if (wholeInches > 0 || fracNum > 0 || feet === 0) {
+				if (wholeInches > 0) {
+					result += wholeInches;
+					if (fracNum > 0) {
+						result += ' ';
+					}
+				}
+
+				if (fracNum > 0) {
+					result += `${fracNum}/${den}`;
+				}
+
+				if (wholeInches === 0 && fracNum === 0) {
+					result += '0';
+				}
+
+				result += '"';
+			}
+
+			return result;
+		}
+
+		function calculate(operation) {
+			const input1 = document.getElementById('measurement1').value;
+			const input2 = document.getElementById('measurement2').value;
+			const resultEl = document.getElementById('result');
+			const errorEl = document.getElementById('error');
+			const saveBtn = document.getElementById('saveBtn');
+
+			errorEl.textContent = '';
+			saveBtn.disabled = true;
+
+			try {
+				if (!input1 || !input2) {
+					throw new Error('Please enter both measurements');
+				}
+
+				const inches1 = parseImperialInput(input1);
+				const inches2 = parseImperialInput(input2);
+
+				if (isNaN(inches1) || isNaN(inches2)) {
+					throw new Error('Invalid input format');
+				}
+
+				let result;
+				let operationSymbol;
+				switch (operation) {
+					case 'add':
+						result = inches1 + inches2;
+						operationSymbol = '+';
+						break;
+					case 'subtract':
+						result = inches1 - inches2;
+						operationSymbol = '−';
+						break;
+					case 'multiply':
+						result = inches1 * inches2;
+						operationSymbol = '×';
+						break;
+					case 'divide':
+						if (inches2 === 0) {
+							throw new Error('Cannot divide by zero');
+						}
+						result = inches1 / inches2;
+						operationSymbol = '÷';
+						break;
+				}
+
+				const resultFormatted = inchesToImperial(result);
+				resultEl.textContent = resultFormatted;
+
+				// Store the calculation for potential saving
+				lastCalculation = {
+					input1: input1,
+					input2: input2,
+					operation: operationSymbol,
+					result: resultFormatted,
+					timestamp: new Date().toLocaleString()
+				};
+
+				saveBtn.disabled = false;
+
+			} catch (error) {
+				resultEl.textContent = '—';
+				errorEl.textContent = error.message;
+				lastCalculation = null;
+			}
+		}
+
+		function saveToHistory() {
+			if (!lastCalculation) return;
+
+			calculationHistory.unshift(lastCalculation);
+			lastCalculation = null;
+			document.getElementById('saveBtn').disabled = true;
+
+			updateHistoryDisplay();
+		}
+
+		function updateHistoryDisplay() {
+			const historyList = document.getElementById('historyList');
+
+			if (calculationHistory.length === 0) {
+				historyList.innerHTML = '<div class="history-empty">No calculations saved yet</div>';
+				return;
+			}
+
+			historyList.innerHTML = calculationHistory.map((calc, index) => `
+                <div class="history-item">
+                    <strong>${calc.input1} ${calc.operation} ${calc.input2} = ${calc.result}</strong><br>
+                    <small style="color: #888;">${calc.timestamp}</small>
+                </div>
+            `).join('');
+		}
+
+		function clearHistory() {
+			if (calculationHistory.length === 0) return;
+
+			if (confirm('Are you sure you want to clear all calculation history?')) {
+				calculationHistory = [];
+				updateHistoryDisplay();
+			}
+		}
+
+		// Allow Enter key to trigger addition
+		document.getElementById('measurement2').addEventListener('keypress', function (e) {
+			if (e.key === 'Enter') {
+				calculate('add');
+			}
+		});
+	</script>
+</body>
+
+</html>

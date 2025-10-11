@@ -6,6 +6,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Imperial Measurement Calculator</title>
 	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 		* {
 			margin: 0;
 			padding: 0;
@@ -13,20 +15,21 @@
 		}
 
 		body {
-			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			font-family: 'Lexend', Tahoma, Geneva, Verdana, sans-serif;
 			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 			min-height: 100vh;
 			display: flex;
 			justify-content: center;
 			align-items: center;
 			padding: 20px;
+
 		}
 
 		.calculator {
 			background: white;
 			border-radius: 20px;
 			box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-			padding: 40px;
+			padding: 25px;
 			max-width: 500px;
 			width: 100%;
 		}
@@ -134,6 +137,10 @@
 			margin-top: 15px;
 		}
 
+		.action-buttons button {
+			flex: 1;
+		}
+
 		.save-btn {
 			flex: 1;
 			background: #27ae60;
@@ -155,6 +162,30 @@
 
 		.clear-btn:hover {
 			background: #c0392b;
+		}
+
+		.convert-btn {
+			background: #3498db;
+			padding: 12px;
+			border-radius: 8px;
+			font-size: 16px;
+		}
+
+		.convert-btn:hover {
+			background: #2980b9;
+		}
+
+		.clear-inputs-btn {
+			background: #95a5a6;
+			padding: 12px 20px;
+			border-radius: 8px;
+			font-size: 16px;
+			margin-top: 10px;
+			width: 100%;
+		}
+
+		.clear-inputs-btn:hover {
+			background: #7f8c8d;
 		}
 
 		.history {
@@ -217,13 +248,17 @@
 			<button class="op-btn" onclick="calculate('divide')">÷</button>
 		</div>
 
+		<button class="clear-inputs-btn" onclick="clearInputs()">Clear Inputs</button>
+
 		<div class="result">
 			<div class="result-label">Result:</div>
 			<div class="result-value" id="result">—</div>
 			<div class="error" id="error"></div>
 			<div class="action-buttons">
 				<button class="save-btn" onclick="saveToHistory()" id="saveBtn" disabled>Save to History</button>
-				<button class="clear-btn" onclick="clearHistory()">Clear All</button>
+				<button class="convert-btn" onclick="convertToInches()" id="convertBtn" disabled>Convert to
+					Inches</button>
+				<button class="clear-btn" onclick="clearHistory()">Clear History</button>
 			</div>
 		</div>
 
@@ -238,6 +273,8 @@
 	<script>
 		let calculationHistory = [];
 		let lastCalculation = null;
+		let lastResultInches = null;
+		let displayInInchesOnly = false;
 
 		function gcd(a, b) {
 			a = Math.abs(a);
@@ -361,9 +398,11 @@
 			const resultEl = document.getElementById('result');
 			const errorEl = document.getElementById('error');
 			const saveBtn = document.getElementById('saveBtn');
+			const convertBtn = document.getElementById('convertBtn');
 
 			errorEl.textContent = '';
 			saveBtn.disabled = true;
+			convertBtn.disabled = true;
 
 			try {
 				if (!input1 || !input2) {
@@ -401,7 +440,19 @@
 						break;
 				}
 
-				const resultFormatted = inchesToImperial(result);
+				// Store result in inches
+				lastResultInches = result;
+
+				// Display based on current preference
+				let resultFormatted;
+				if (displayInInchesOnly) {
+					resultFormatted = formatAsInchesOnly(result);
+					convertBtn.textContent = 'Convert to Feet & Inches';
+				} else {
+					resultFormatted = inchesToImperial(result);
+					convertBtn.textContent = 'Convert to Inches';
+				}
+
 				resultEl.textContent = resultFormatted;
 
 				// Store the calculation for potential saving
@@ -414,11 +465,69 @@
 				};
 
 				saveBtn.disabled = false;
+				convertBtn.disabled = false;
 
 			} catch (error) {
 				resultEl.textContent = '—';
 				errorEl.textContent = error.message;
 				lastCalculation = null;
+				lastResultInches = null;
+			}
+		}
+
+		function formatAsInchesOnly(inches) {
+			const isNegative = inches < 0;
+			inches = Math.abs(inches);
+
+			// Round to nearest 1/64th
+			const sixtyFourths = Math.round(inches * 64);
+			const [num, den] = reduceFraction(sixtyFourths, 64);
+
+			let inchesDisplay = isNegative ? '−' : '';
+			const wholeInches = Math.floor(num / den);
+			const fracNum = num % den;
+
+			if (wholeInches > 0) {
+				inchesDisplay += wholeInches;
+				if (fracNum > 0) {
+					inchesDisplay += ' ';
+				}
+			}
+
+			if (fracNum > 0) {
+				inchesDisplay += `${fracNum}/${den}`;
+			}
+
+			if (wholeInches === 0 && fracNum === 0) {
+				inchesDisplay += '0';
+			}
+
+			return `${inchesDisplay}"`;
+		}
+
+		function convertToInches() {
+			if (lastResultInches === null) return;
+
+			const resultEl = document.getElementById('result');
+			const convertBtn = document.getElementById('convertBtn');
+
+			// Toggle between formats
+			displayInInchesOnly = !displayInInchesOnly;
+
+			let resultFormatted;
+			if (displayInInchesOnly) {
+				resultFormatted = formatAsInchesOnly(lastResultInches);
+				convertBtn.textContent = 'Convert to Feet & Inches';
+			} else {
+				resultFormatted = inchesToImperial(lastResultInches);
+				convertBtn.textContent = 'Convert to Inches';
+			}
+
+			resultEl.textContent = resultFormatted;
+
+			// Update the stored calculation result
+			if (lastCalculation) {
+				lastCalculation.result = resultFormatted;
 			}
 		}
 
@@ -455,6 +564,12 @@
 				calculationHistory = [];
 				updateHistoryDisplay();
 			}
+		}
+
+		function clearInputs() {
+			document.getElementById('measurement1').value = '';
+			document.getElementById('measurement2').value = '';
+			document.getElementById('measurement1').focus();
 		}
 
 		// Allow Enter key to trigger addition

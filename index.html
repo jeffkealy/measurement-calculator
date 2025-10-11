@@ -257,6 +257,11 @@
 
 		function parseImperialInput(input) {
 			input = input.trim();
+
+			// Normalize curly quotes to straight quotes (for iOS compatibility)
+			// Using Unicode escapes to ensure curly quotes are preserved
+			input = input.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
+
 			let totalInches = 0;
 
 			// Pattern: feet (') and/or inches (")

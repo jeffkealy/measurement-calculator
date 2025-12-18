@@ -1,0 +1,22 @@
+input[type="text"] {
+  border-color: #333;
+}
+
+.clear-btn {
+  font-size: 16px;
+}
+
+button {
+  font-size: 22px;
+}
+
+@media screen and (max-width: 768px) {
+  body {
+    align-items: flex-start;
+  }
+
+  h1 {
+    margin-bottom: 8px;
+    font-size: 16px;
+  }
+}

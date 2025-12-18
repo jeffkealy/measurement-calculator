@@ -6,8 +6,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Imperial Measurement Calculator</title>
 	<style>
-		@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
-
 		* {
 			margin: 0;
 			padding: 0;
@@ -15,21 +13,20 @@
 		}
 
 		body {
-			font-family: 'Lexend', Tahoma, Geneva, Verdana, sans-serif;
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 			min-height: 100vh;
 			display: flex;
 			justify-content: center;
 			align-items: center;
 			padding: 20px;
-
 		}
 
 		.calculator {
 			background: white;
 			border-radius: 20px;
 			box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-			padding: 25px;
+			padding: 40px;
 			max-width: 500px;
 			width: 100%;
 		}
@@ -41,23 +38,29 @@
 			font-size: 24px;
 		}
 
-		.input-group {
+		.display {
 			margin-bottom: 20px;
 		}
 
-		label {
-			display: block;
-			margin-bottom: 8px;
-			color: #555;
-			font-weight: 600;
+		.result-display {
+			background: #f8f9fa;
+			padding: 15px;
+			border-radius: 8px;
+			min-height: 50px;
+			margin-bottom: 10px;
+			font-size: 18px;
+			color: #666;
+			display: flex;
+			align-items: center;
 		}
 
 		input[type="text"] {
 			width: 100%;
-			padding: 12px;
+			padding: 15px;
 			border: 2px solid #ddd;
 			border-radius: 8px;
-			font-size: 16px;
+			font-size: 20px;
+			font-weight: 500;
 			transition: border-color 0.3s;
 		}
 
@@ -66,18 +69,24 @@
 			border-color: #667eea;
 		}
 
-		.operation-buttons {
+		.help-text {
+			font-size: 12px;
+			color: #888;
+			margin-top: 5px;
+		}
+
+		.button-grid {
 			display: grid;
 			grid-template-columns: repeat(4, 1fr);
 			gap: 10px;
-			margin-bottom: 20px;
+			margin-bottom: 15px;
 		}
 
 		button {
 			padding: 15px;
 			border: none;
 			border-radius: 8px;
-			font-size: 20px;
+			font-size: 18px;
 			font-weight: bold;
 			cursor: pointer;
 			transition: all 0.3s;
@@ -91,101 +100,49 @@
 		.op-btn:hover {
 			background: #5568d3;
 			transform: translateY(-2px);
-			box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 		}
 
-		.op-btn:active {
-			transform: translateY(0);
-		}
-
-		.result {
-			background: #f8f9fa;
-			padding: 20px;
-			border-radius: 8px;
-			margin-top: 20px;
-			min-height: 60px;
-		}
-
-		.result-label {
-			color: #666;
-			font-size: 14px;
-			margin-bottom: 5px;
-		}
-
-		.result-value {
-			font-size: 24px;
-			font-weight: bold;
-			color: #333;
-			word-wrap: break-word;
-		}
-
-		.error {
-			color: #e74c3c;
-			font-size: 14px;
-			margin-top: 5px;
-		}
-
-		.help-text {
-			font-size: 12px;
-			color: #888;
-			margin-top: 5px;
-		}
-
-		.action-buttons {
-			display: flex;
-			gap: 10px;
-			margin-top: 15px;
-		}
-
-		.action-buttons button {
-			flex: 1;
-		}
-
-		.save-btn {
-			flex: 1;
+		.equals-btn {
 			background: #27ae60;
-			padding: 12px;
-			border-radius: 8px;
-			font-size: 16px;
+			grid-column: span 2;
 		}
 
-		.save-btn:hover {
+		.equals-btn:hover {
 			background: #229954;
+			transform: translateY(-2px);
 		}
 
 		.clear-btn {
 			background: #e74c3c;
-			padding: 12px 20px;
-			border-radius: 8px;
-			font-size: 16px;
 		}
 
 		.clear-btn:hover {
 			background: #c0392b;
+			transform: translateY(-2px);
+		}
+
+		.convert-group {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 10px;
+			margin-bottom: 15px;
 		}
 
 		.convert-btn {
 			background: #3498db;
 			padding: 12px;
-			border-radius: 8px;
-			font-size: 16px;
+			font-size: 14px;
 		}
 
 		.convert-btn:hover {
 			background: #2980b9;
+			transform: translateY(-2px);
 		}
 
-		.clear-inputs-btn {
-			background: #95a5a6;
-			padding: 12px 20px;
-			border-radius: 8px;
-			font-size: 16px;
-			margin-top: 10px;
-			width: 100%;
-		}
-
-		.clear-inputs-btn:hover {
-			background: #7f8c8d;
+		.convert-btn:disabled {
+			background: #bdc3c7;
+			cursor: not-allowed;
+			transform: none;
 		}
 
 		.history {
@@ -194,11 +151,28 @@
 			border-top: 2px solid #eee;
 		}
 
+		.history-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 15px;
+		}
+
 		.history-title {
 			font-size: 18px;
 			font-weight: bold;
 			color: #333;
-			margin-bottom: 15px;
+		}
+
+		.clear-history-btn {
+			background: #e74c3c;
+			padding: 8px 15px;
+			font-size: 14px;
+			border-radius: 6px;
+		}
+
+		.clear-history-btn:hover {
+			background: #c0392b;
 		}
 
 		.history-list {
@@ -211,9 +185,31 @@
 			padding: 12px 15px;
 			border-radius: 8px;
 			margin-bottom: 10px;
+			border-left: 4px solid #667eea;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.history-item-content {
+			flex: 1;
 			font-size: 14px;
 			line-height: 1.6;
-			border-left: 4px solid #667eea;
+		}
+
+		.history-item-delete {
+			background: #e74c3c;
+			color: white;
+			border: none;
+			padding: 5px 10px;
+			border-radius: 4px;
+			font-size: 12px;
+			cursor: pointer;
+			margin-left: 10px;
+		}
+
+		.history-item-delete:hover {
+			background: #c0392b;
 		}
 
 		.history-empty {
@@ -222,59 +218,159 @@
 			padding: 20px;
 			font-style: italic;
 		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.5);
+			z-index: 1000;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.modal.show {
+			display: flex;
+		}
+
+		.modal-content {
+			background: white;
+			padding: 30px;
+			border-radius: 15px;
+			max-width: 400px;
+			width: 90%;
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+		}
+
+		.modal-title {
+			font-size: 20px;
+			font-weight: bold;
+			margin-bottom: 15px;
+			color: #333;
+		}
+
+		.modal-buttons {
+			display: flex;
+			gap: 10px;
+			margin-top: 20px;
+		}
+
+		.modal-btn {
+			flex: 1;
+			padding: 12px;
+			font-size: 16px;
+		}
+
+		.modal-btn-yes {
+			background: #e74c3c;
+		}
+
+		.modal-btn-yes:hover {
+			background: #c0392b;
+		}
+
+		.modal-btn-cancel {
+			background: #95a5a6;
+		}
+
+		.modal-btn-cancel:hover {
+			background: #7f8c8d;
+		}
+
+		.error {
+			color: #e74c3c;
+			font-size: 14px;
+			margin-top: 5px;
+		}
 	</style>
+	<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 	<div class="calculator">
 		<h1>Imperial Measurement Calculator</h1>
 
-		<div class="input-group">
-			<label for="measurement1">First Measurement</label>
-			<input type="text" id="measurement1" placeholder="e.g., 3' 6 1/2&quot; or 2.5' or 14&quot;">
-			<div class="help-text">Formats: 3' 6", 3.5', 6 1/2", 2' 4 3/8"</div>
-		</div>
-
-		<div class="input-group">
-			<label for="measurement2">Second Measurement</label>
-			<input type="text" id="measurement2" placeholder="e.g., 1' 2 3/4&quot; or 0.5' or 8&quot;">
-			<div class="help-text">Formats: 1' 8", 1.25', 10 3/4", 1' 2 1/16"</div>
-		</div>
-
-		<div class="operation-buttons">
-			<button class="op-btn" onclick="calculate('add')">+</button>
-			<button class="op-btn" onclick="calculate('subtract')">−</button>
-			<button class="op-btn" onclick="calculate('multiply')">×</button>
-			<button class="op-btn" onclick="calculate('divide')">÷</button>
-		</div>
-
-		<button class="clear-inputs-btn" onclick="clearInputs()">Clear Inputs</button>
-
-		<div class="result">
-			<div class="result-label">Result:</div>
-			<div class="result-value" id="result">—</div>
+		<div class="display">
+			<div class="result-display" id="resultDisplay">—</div>
+			<input type="text" id="equationInput" placeholder="Enter measurement...">
+			<div class="help-text">Formats: 3' 6", 3.5', 6 1/2", 2' 4 3/8". <br> No " or ' defaults to inches
+				<br>Operators must have spaces around them </div>
 			<div class="error" id="error"></div>
-			<div class="action-buttons">
-				<button class="save-btn" onclick="saveToHistory()" id="saveBtn" disabled>Save to History</button>
-				<button class="convert-btn" onclick="convertToInches()" id="convertBtn" disabled>Convert to
-					Inches</button>
-				<button class="clear-btn" onclick="clearHistory()">Clear History</button>
-			</div>
+		</div>
+
+		<div class="button-grid">
+			<button class="op-btn" onclick="addOperator('+')">+</button>
+			<button class="op-btn" onclick="addOperator('-')">−</button>
+			<button class="op-btn" onclick="addOperator('*')">×</button>
+			<button class="op-btn" onclick="addOperator('/')">÷</button>
+			<button class="equals-btn" onclick="calculateResult()">=</button>
+			<button class="clear-btn" onclick="clearAll()">Clear</button>
+		</div>
+
+		<div class="convert-group">
+			<button class="convert-btn" id="unitConvertBtn" onclick="toggleUnitDisplay()" disabled>To
+				Inches</button>
+			<button class="convert-btn" id="decimalConvertBtn" onclick="toggleDecimalDisplay()" disabled>To
+				Decimal</button>
 		</div>
 
 		<div class="history">
-			<div class="history-title">Calculation History</div>
+			<div class="history-header">
+				<div class="history-title">Calculation History</div>
+				<button class="clear-history-btn" onclick="showClearHistoryModal()">Clear History</button>
+			</div>
 			<div class="history-list" id="historyList">
 				<div class="history-empty">No calculations saved yet</div>
 			</div>
 		</div>
 	</div>
 
+	<div class="modal" id="confirmModal">
+		<div class="modal-content">
+			<div class="modal-title">Are you sure?</div>
+			<div id="modalMessage"></div>
+			<div class="modal-buttons">
+				<button class="modal-btn modal-btn-yes" onclick="confirmAction()">Yes</button>
+				<button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancel</button>
+			</div>
+		</div>
+	</div>
+
 	<script>
 		let calculationHistory = [];
-		let lastCalculation = null;
-		let lastResultInches = null;
+		let currentResult = null;
+		let currentResultInches = null;
 		let displayInInchesOnly = false;
+		let displayAsDecimal = false;
+		let pendingModalAction = null;
+		const MAX_HISTORY = 20;
+		const STORAGE_KEY = 'imperialCalcHistory';
+
+		// Load history from memory storage on startup
+		function loadHistory() {
+			const stored = sessionStorage.getItem(STORAGE_KEY);
+			if (stored) {
+				try {
+					calculationHistory = JSON.parse(stored);
+					updateHistoryDisplay();
+				} catch (e) {
+					console.error('Failed to load history:', e);
+					calculationHistory = [];
+				}
+			}
+		}
+
+		// Save history to memory storage
+		function saveHistory() {
+			try {
+				sessionStorage.setItem(STORAGE_KEY, JSON.stringify(calculationHistory));
+			} catch (e) {
+				console.error('Failed to save history:', e);
+			}
+		}
 
 		function gcd(a, b) {
 			a = Math.abs(a);
@@ -296,12 +392,10 @@
 			input = input.trim();
 
 			// Normalize curly quotes to straight quotes (for iOS compatibility)
-			// Using Unicode escapes to ensure curly quotes are preserved
 			input = input.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
 
 			let totalInches = 0;
 
-			// Pattern: feet (') and/or inches (")
 			const feetMatch = input.match(/(\d+\.?\d*|\d*\.?\d+)\s*'/);
 			const inchesMatch = input.match(/(\d+\.?\d*|\d*\.?\d+)?\s*(\d+\/\d+)?\s*"/);
 
@@ -312,12 +406,10 @@
 			if (inchesMatch) {
 				let inchValue = 0;
 
-				// Whole number or decimal part
 				if (inchesMatch[1]) {
 					inchValue += parseFloat(inchesMatch[1]);
 				}
 
-				// Fraction part
 				if (inchesMatch[2]) {
 					const [fNum, fDen] = inchesMatch[2].split('/').map(Number);
 					inchValue += fNum / fDen;
@@ -326,9 +418,7 @@
 				totalInches += inchValue;
 			}
 
-			// If no feet or inches symbol, check if it's just a number (assume inches)
 			if (!feetMatch && !inchesMatch) {
-				// Check for mixed number format: "3 1/2" or just "3.5" or "1/2"
 				const mixedMatch = input.match(/^(\d+\.?\d*)?\s*(\d+\/\d+)?$/);
 				if (mixedMatch) {
 					let inchValue = 0;
@@ -350,7 +440,6 @@
 			const isNegative = inches < 0;
 			inches = Math.abs(inches);
 
-			// Round to nearest 1/64th
 			const sixtyFourths = Math.round(inches * 64);
 
 			const feet = Math.floor(sixtyFourths / (12 * 64));
@@ -392,94 +481,10 @@
 			return result;
 		}
 
-		function calculate(operation) {
-			const input1 = document.getElementById('measurement1').value;
-			const input2 = document.getElementById('measurement2').value;
-			const resultEl = document.getElementById('result');
-			const errorEl = document.getElementById('error');
-			const saveBtn = document.getElementById('saveBtn');
-			const convertBtn = document.getElementById('convertBtn');
-
-			errorEl.textContent = '';
-			saveBtn.disabled = true;
-			convertBtn.disabled = true;
-
-			try {
-				if (!input1 || !input2) {
-					throw new Error('Please enter both measurements');
-				}
-
-				const inches1 = parseImperialInput(input1);
-				const inches2 = parseImperialInput(input2);
-
-				if (isNaN(inches1) || isNaN(inches2)) {
-					throw new Error('Invalid input format');
-				}
-
-				let result;
-				let operationSymbol;
-				switch (operation) {
-					case 'add':
-						result = inches1 + inches2;
-						operationSymbol = '+';
-						break;
-					case 'subtract':
-						result = inches1 - inches2;
-						operationSymbol = '−';
-						break;
-					case 'multiply':
-						result = inches1 * inches2;
-						operationSymbol = '×';
-						break;
-					case 'divide':
-						if (inches2 === 0) {
-							throw new Error('Cannot divide by zero');
-						}
-						result = inches1 / inches2;
-						operationSymbol = '÷';
-						break;
-				}
-
-				// Store result in inches
-				lastResultInches = result;
-
-				// Display based on current preference
-				let resultFormatted;
-				if (displayInInchesOnly) {
-					resultFormatted = formatAsInchesOnly(result);
-					convertBtn.textContent = 'Convert to Feet & Inches';
-				} else {
-					resultFormatted = inchesToImperial(result);
-					convertBtn.textContent = 'Convert to Inches';
-				}
-
-				resultEl.textContent = resultFormatted;
-
-				// Store the calculation for potential saving
-				lastCalculation = {
-					input1: input1,
-					input2: input2,
-					operation: operationSymbol,
-					result: resultFormatted,
-					timestamp: new Date().toLocaleString()
-				};
-
-				saveBtn.disabled = false;
-				convertBtn.disabled = false;
-
-			} catch (error) {
-				resultEl.textContent = '—';
-				errorEl.textContent = error.message;
-				lastCalculation = null;
-				lastResultInches = null;
-			}
-		}
-
 		function formatAsInchesOnly(inches) {
 			const isNegative = inches < 0;
 			inches = Math.abs(inches);
 
-			// Round to nearest 1/64th
 			const sixtyFourths = Math.round(inches * 64);
 			const [num, den] = reduceFraction(sixtyFourths, 64);
 
@@ -505,39 +510,228 @@
 			return `${inchesDisplay}"`;
 		}
 
-		function convertToInches() {
-			if (lastResultInches === null) return;
+		function formatAsDecimal(inches) {
+			return inches.toFixed(4).replace(/\.?0+$/, '') + '"';
+		}
 
-			const resultEl = document.getElementById('result');
-			const convertBtn = document.getElementById('convertBtn');
-
-			// Toggle between formats
-			displayInInchesOnly = !displayInInchesOnly;
-
-			let resultFormatted;
-			if (displayInInchesOnly) {
-				resultFormatted = formatAsInchesOnly(lastResultInches);
-				convertBtn.textContent = 'Convert to Feet & Inches';
+		function formatResult(inches) {
+			if (displayAsDecimal) {
+				return formatAsDecimal(inches);
+			} else if (displayInInchesOnly) {
+				return formatAsInchesOnly(inches);
 			} else {
-				resultFormatted = inchesToImperial(lastResultInches);
-				convertBtn.textContent = 'Convert to Inches';
-			}
-
-			resultEl.textContent = resultFormatted;
-
-			// Update the stored calculation result
-			if (lastCalculation) {
-				lastCalculation.result = resultFormatted;
+				return inchesToImperial(inches);
 			}
 		}
 
-		function saveToHistory() {
-			if (!lastCalculation) return;
+		function addOperator(op) {
+			const input = document.getElementById('equationInput');
+			let value = input.value.trim();
 
-			calculationHistory.unshift(lastCalculation);
-			lastCalculation = null;
-			document.getElementById('saveBtn').disabled = true;
+			// If we have a current result and input is empty, start with result
+			if (currentResultInches !== null && value === '') {
+				const resultStr = formatResult(currentResultInches);
+				input.value = resultStr + ' ' + op + ' ';
+			} else if (value && !value.endsWith(' ')) {
+				// Add operator to current input
+				input.value = value + ' ' + op + ' ';
+			}
 
+			// Move cursor to end
+			input.focus();
+			input.setSelectionRange(input.value.length, input.value.length);
+		}
+
+		function parseEquation(equation) {
+			// Split by operators while keeping them
+			// Use a more careful regex that preserves spaces in measurements
+			const parts = [];
+			let current = '';
+
+			for (let i = 0; i < equation.length; i++) {
+				const char = equation[i];
+
+				if (['+', '-', '*', '/'].includes(char)) {
+					// Check if this is an operator or part of a measurement
+					// Look ahead and behind for context
+					const prevChar = i > 0 ? equation[i - 1] : '';
+					const nextChar = i < equation.length - 1 ? equation[i + 1] : '';
+
+					// If preceded and followed by spaces, it's likely an operator
+					if (prevChar === ' ' && nextChar === ' ') {
+						if (current.trim()) parts.push(current.trim());
+						parts.push(char);
+						current = '';
+						i++; // skip the space after operator
+					} else {
+						current += char;
+					}
+				} else {
+					current += char;
+				}
+			}
+
+			if (current.trim()) parts.push(current.trim());
+
+			let values = [];
+			let operators = [];
+
+			for (let token of parts) {
+				if (['+', '-', '*', '/'].includes(token)) {
+					operators.push(token);
+				} else {
+					const inches = parseImperialInput(token);
+					if (isNaN(inches)) {
+						throw new Error('Invalid measurement: ' + token);
+					}
+					values.push(inches);
+				}
+			}
+
+			// Order of operations: multiply and divide first
+			let i = 0;
+			while (i < operators.length) {
+				if (operators[i] === '*' || operators[i] === '/') {
+					const left = values[i];
+					const right = values[i + 1];
+					let result;
+
+					if (operators[i] === '*') {
+						result = left * right;
+					} else {
+						if (right === 0) throw new Error('Cannot divide by zero');
+						result = left / right;
+					}
+
+					values.splice(i, 2, result);
+					operators.splice(i, 1);
+				} else {
+					i++;
+				}
+			}
+
+			// Then add and subtract
+			let result = values[0];
+			for (let i = 0; i < operators.length; i++) {
+				if (operators[i] === '+') {
+					result += values[i + 1];
+				} else if (operators[i] === '-') {
+					result -= values[i + 1];
+				}
+			}
+
+			return result;
+		}
+
+		function calculateResult() {
+			const input = document.getElementById('equationInput');
+			const equation = input.value.trim();
+			const errorEl = document.getElementById('error');
+			const resultDisplay = document.getElementById('resultDisplay');
+			const unitConvertBtn = document.getElementById('unitConvertBtn');
+			const decimalConvertBtn = document.getElementById('decimalConvertBtn');
+
+			errorEl.textContent = '';
+
+			try {
+				if (!equation) {
+					throw new Error('Please enter a measurement');
+				}
+
+				const resultInches = parseEquation(equation);
+				currentResultInches = resultInches;
+
+				const resultFormatted = formatResult(resultInches);
+				resultDisplay.textContent = resultFormatted;
+				currentResult = resultFormatted;
+
+				// Save to history
+				addToHistory(equation, resultFormatted);
+
+				// Clear input
+				input.value = '';
+
+				// Enable convert buttons
+				unitConvertBtn.disabled = false;
+				decimalConvertBtn.disabled = false;
+
+				// Update button text based on current state
+				updateConvertButtons();
+
+			} catch (error) {
+				errorEl.textContent = error.message;
+				currentResultInches = null;
+				currentResult = null;
+				unitConvertBtn.disabled = true;
+				decimalConvertBtn.disabled = true;
+			}
+		}
+
+		function updateConvertButtons() {
+			const unitConvertBtn = document.getElementById('unitConvertBtn');
+			const decimalConvertBtn = document.getElementById('decimalConvertBtn');
+
+			if (displayInInchesOnly) {
+				unitConvertBtn.textContent = 'To Feet & Inches';
+			} else {
+				unitConvertBtn.textContent = 'To Inches';
+			}
+
+			if (displayAsDecimal) {
+				decimalConvertBtn.textContent = 'To Fraction';
+			} else {
+				decimalConvertBtn.textContent = 'To Decimal';
+			}
+		}
+
+		function toggleUnitDisplay() {
+			if (currentResultInches === null) return;
+
+			displayInInchesOnly = !displayInInchesOnly;
+			const resultFormatted = formatResult(currentResultInches);
+			document.getElementById('resultDisplay').textContent = resultFormatted;
+			currentResult = resultFormatted;
+
+			updateConvertButtons();
+		}
+
+		function toggleDecimalDisplay() {
+			if (currentResultInches === null) return;
+
+			displayAsDecimal = !displayAsDecimal;
+			const resultFormatted = formatResult(currentResultInches);
+			document.getElementById('resultDisplay').textContent = resultFormatted;
+			currentResult = resultFormatted;
+
+			updateConvertButtons();
+		}
+
+		function clearAll() {
+			document.getElementById('equationInput').value = '';
+			document.getElementById('resultDisplay').textContent = '—';
+			document.getElementById('error').textContent = '';
+			currentResult = null;
+			currentResultInches = null;
+			document.getElementById('unitConvertBtn').disabled = true;
+			document.getElementById('decimalConvertBtn').disabled = true;
+		}
+
+		function addToHistory(equation, result) {
+			const timestamp = new Date().toLocaleString();
+
+			calculationHistory.unshift({
+				equation,
+				result,
+				timestamp,
+				id: Date.now()
+			});
+
+			// Keep only last 20
+			if (calculationHistory.length > MAX_HISTORY) {
+				calculationHistory = calculationHistory.slice(0, MAX_HISTORY);
+			}
+
+			saveHistory();
 			updateHistoryDisplay();
 		}
 
@@ -549,35 +743,63 @@
 				return;
 			}
 
-			historyList.innerHTML = calculationHistory.map((calc, index) => `
+			historyList.innerHTML = calculationHistory.map(calc => `
                 <div class="history-item">
-                    <strong>${calc.input1} ${calc.operation} ${calc.input2} = ${calc.result}</strong><br>
-                    <small style="color: #888;">${calc.timestamp}</small>
+                    <div class="history-item-content">
+                        <strong>${calc.equation} = ${calc.result}</strong><br>
+                        <small style="color: #888;">${calc.timestamp}</small>
+                    </div>
+                    <button class="history-item-delete" onclick="event.stopPropagation(); showDeleteHistoryItemModal(${calc.id})">Delete</button>
                 </div>
             `).join('');
 		}
 
-		function clearHistory() {
+		function showDeleteHistoryItemModal(id) {
+			pendingModalAction = () => deleteHistoryItem(id);
+			document.getElementById('modalMessage').textContent = 'Do you want to delete this calculation from history?';
+			document.getElementById('confirmModal').classList.add('show');
+		}
+
+		function showClearHistoryModal() {
 			if (calculationHistory.length === 0) return;
 
-			if (confirm('Are you sure you want to clear all calculation history?')) {
+			pendingModalAction = () => {
 				calculationHistory = [];
+				saveHistory();
 				updateHistoryDisplay();
+			};
+			document.getElementById('modalMessage').textContent = 'Do you want to clear all calculation history?';
+			document.getElementById('confirmModal').classList.add('show');
+		}
+
+		function deleteHistoryItem(id) {
+			calculationHistory = calculationHistory.filter(calc => calc.id !== id);
+			saveHistory();
+			updateHistoryDisplay();
+		}
+
+		function confirmAction() {
+			if (pendingModalAction) {
+				pendingModalAction();
+				pendingModalAction = null;
 			}
+			closeModal();
 		}
 
-		function clearInputs() {
-			document.getElementById('measurement1').value = '';
-			document.getElementById('measurement2').value = '';
-			document.getElementById('measurement1').focus();
+		function closeModal() {
+			document.getElementById('confirmModal').classList.remove('show');
+			pendingModalAction = null;
 		}
 
-		// Allow Enter key to trigger addition
-		document.getElementById('measurement2').addEventListener('keypress', function (e) {
+		// Allow Enter key to calculate
+		document.getElementById('equationInput').addEventListener('keypress', function (e) {
 			if (e.key === 'Enter') {
-				calculate('add');
+				calculateResult();
 			}
 		});
+
+		// Load history when page loads
+		loadHistory();
 	</script>
 </body>
 

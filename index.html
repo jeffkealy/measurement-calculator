@@ -296,8 +296,11 @@
 		<div class="display">
 			<div class="result-display" id="resultDisplay">—</div>
 			<input type="text" id="equationInput" placeholder="Enter measurement...">
-			<div class="help-text">Formats: 3' 6", 3.5', 6 1/2", 2' 4 3/8". <br> No " or ' defaults to inches
-				<br>Operators must have spaces around them </div>
+			<div class="help-text">Formats: 3' 6", 3.5', 6 1/2", 2' 4 3/8".
+				<br> Without " or ' abbreviation, number
+				defaults to inches
+				<br>Operators must have spaces around them
+			</div>
 			<div class="error" id="error"></div>
 		</div>
 
@@ -351,7 +354,7 @@
 
 		// Load history from memory storage on startup
 		function loadHistory() {
-			const stored = sessionStorage.getItem(STORAGE_KEY);
+			const stored = localStorage.getItem(STORAGE_KEY);
 			if (stored) {
 				try {
 					calculationHistory = JSON.parse(stored);
@@ -366,7 +369,7 @@
 		// Save history to memory storage
 		function saveHistory() {
 			try {
-				sessionStorage.setItem(STORAGE_KEY, JSON.stringify(calculationHistory));
+				localStorage.setItem(STORAGE_KEY, JSON.stringify(calculationHistory));
 			} catch (e) {
 				console.error('Failed to save history:', e);
 			}

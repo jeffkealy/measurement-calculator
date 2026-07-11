@@ -9,7 +9,9 @@ input[type="text"] {
 button {
   font-size: 22px;
 }
-
+.help-text {
+  font-size: 10px;
+}
 @media screen and (max-width: 768px) {
   body {
     align-items: flex-start;

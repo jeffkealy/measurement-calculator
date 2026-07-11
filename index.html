@@ -6,6 +6,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Imperial Measurement Calculator</title>
 	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap');
+
 		* {
 			margin: 0;
 			padding: 0;
@@ -13,7 +15,7 @@
 		}
 
 		body {
-			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			font-family: "Google Sans", sans-serif;
 			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 			min-height: 100vh;
 			display: flex;
@@ -83,6 +85,7 @@
 		}
 
 		button {
+			font-family: inherit;
 			padding: 15px;
 			border: none;
 			border-radius: 8px;
@@ -197,6 +200,10 @@
 			line-height: 1.6;
 		}
 
+		.history-item-content small {
+			font-size: 12px;
+		}
+
 		.history-item-delete {
 			background: #e74c3c;
 			color: white;
@@ -286,7 +293,6 @@
 			margin-top: 5px;
 		}
 	</style>
-	<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -296,10 +302,11 @@
 		<div class="display">
 			<div class="result-display" id="resultDisplay">—</div>
 			<input type="text" id="equationInput" placeholder="Enter measurement...">
-			<div class="help-text">Formats: 3' 6", 3.5', 6 1/2", 2' 4 3/8".
-				<br> Without " or ' abbreviation, number
-				defaults to inches
-				<br>Operators must have spaces around them
+			<div class="help-text">
+				Formats: 3' 6", 3.5', 6 1/2", 2' 4 3/8". <br>
+				Without " or ' abbreviation, number defaults to inches <br>
+				Operators must have spaces around them.
+				Rounds to nearest 1/16th inch.
 			</div>
 			<div class="error" id="error"></div>
 		</div>
@@ -314,9 +321,9 @@
 		</div>
 
 		<div class="convert-group">
-			<button class="convert-btn" id="unitConvertBtn" onclick="toggleUnitDisplay()" disabled>To
+			<button class="convert-btn" id="unitConvertBtn" onclick="toggleUnitDisplay()" disabled>Convert to
 				Inches</button>
-			<button class="convert-btn" id="decimalConvertBtn" onclick="toggleDecimalDisplay()" disabled>To
+			<button class="convert-btn" id="decimalConvertBtn" onclick="toggleDecimalDisplay()" disabled>Convert to
 				Decimal</button>
 		</div>
 
@@ -354,7 +361,7 @@
 
 		// Load history from memory storage on startup
 		function loadHistory() {
-			const stored = localStorage.getItem(STORAGE_KEY);
+			const stored = sessionStorage.getItem(STORAGE_KEY);
 			if (stored) {
 				try {
 					calculationHistory = JSON.parse(stored);
@@ -369,7 +376,7 @@
 		// Save history to memory storage
 		function saveHistory() {
 			try {
-				localStorage.setItem(STORAGE_KEY, JSON.stringify(calculationHistory));
+				sessionStorage.setItem(STORAGE_KEY, JSON.stringify(calculationHistory));
 			} catch (e) {
 				console.error('Failed to save history:', e);
 			}
@@ -443,12 +450,12 @@
 			const isNegative = inches < 0;
 			inches = Math.abs(inches);
 
-			const sixtyFourths = Math.round(inches * 64);
+			const sixteenths = Math.round(inches * 16);
 
-			const feet = Math.floor(sixtyFourths / (12 * 64));
-			const remainingSixtyFourths = sixtyFourths - (feet * 12 * 64);
+			const feet = Math.floor(sixteenths / (12 * 16));
+			const remainingSixteenths = sixteenths - (feet * 12 * 16);
 
-			const [num, den] = reduceFraction(remainingSixtyFourths, 64);
+			const [num, den] = reduceFraction(remainingSixteenths, 16);
 
 			const wholeInches = Math.floor(num / den);
 			const fracNum = num % den;
@@ -488,8 +495,8 @@
 			const isNegative = inches < 0;
 			inches = Math.abs(inches);
 
-			const sixtyFourths = Math.round(inches * 64);
-			const [num, den] = reduceFraction(sixtyFourths, 64);
+			const sixteenths = Math.round(inches * 16);
+			const [num, den] = reduceFraction(sixteenths, 16);
 
 			let inchesDisplay = isNegative ? '−' : '';
 			const wholeInches = Math.floor(num / den);
@@ -675,15 +682,15 @@
 			const decimalConvertBtn = document.getElementById('decimalConvertBtn');
 
 			if (displayInInchesOnly) {
-				unitConvertBtn.textContent = 'To Feet & Inches';
+				unitConvertBtn.textContent = 'Convert to Feet & Inches';
 			} else {
-				unitConvertBtn.textContent = 'To Inches';
+				unitConvertBtn.textContent = 'Convert to Inches';
 			}
 
 			if (displayAsDecimal) {
-				decimalConvertBtn.textContent = 'To Fraction';
+				decimalConvertBtn.textContent = 'Convert to Fraction';
 			} else {
-				decimalConvertBtn.textContent = 'To Decimal';
+				decimalConvertBtn.textContent = 'Convert to Decimal';
 			}
 		}
 

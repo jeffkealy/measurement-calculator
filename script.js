@@ -52,46 +52,34 @@ function parseImperialInput(input) {
   // Normalize curly quotes to straight quotes (for iOS compatibility)
   input = input.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
 
+  // The whole measurement must match, e.g. 3' | 3' 6" | 3' 6 | 6 1/2" | 1/2 | .5 | −1' 2"
+  // Groups: 1 sign, 2 feet, 3 inches, 4 fraction after inches, 5 fraction alone, 6 inch mark
+  const match = input.match(
+    /^([-−])?\s*(?:(\d+\.?\d*|\.\d+)\s*')?\s*(?:(\d+\.?\d*|\.\d+)(?:\s+(\d+\/\d+))?|(\d+\/\d+))?\s*(")?$/
+  );
+
+  if (!match) return NaN;
+
+  const [, sign, feet, inches, fraction, fractionOnly, inchMark] = match;
+  const hasInches = inches !== undefined || fractionOnly !== undefined;
+
+  // Nothing but a sign or a stray " is not a measurement
+  if (feet === undefined && !hasInches) return NaN;
+  if (inchMark && !hasInches) return NaN;
+
   let totalInches = 0;
 
-  const feetMatch = input.match(/(\d+\.?\d*|\d*\.?\d+)\s*'/);
-  const inchesMatch = input.match(/(\d+\.?\d*|\d*\.?\d+)?\s*(\d+\/\d+)?\s*"/);
+  if (feet !== undefined) totalInches += parseFloat(feet) * 12;
+  if (inches !== undefined) totalInches += parseFloat(inches);
 
-  if (feetMatch) {
-    totalInches += parseFloat(feetMatch[1]) * 12;
+  const frac = fraction ?? fractionOnly;
+  if (frac) {
+    const [fNum, fDen] = frac.split("/").map(Number);
+    if (fDen === 0) return NaN;
+    totalInches += fNum / fDen;
   }
 
-  if (inchesMatch) {
-    let inchValue = 0;
-
-    if (inchesMatch[1]) {
-      inchValue += parseFloat(inchesMatch[1]);
-    }
-
-    if (inchesMatch[2]) {
-      const [fNum, fDen] = inchesMatch[2].split("/").map(Number);
-      inchValue += fNum / fDen;
-    }
-
-    totalInches += inchValue;
-  }
-
-  if (!feetMatch && !inchesMatch) {
-    const mixedMatch = input.match(/^(\d+\.?\d*)?\s*(\d+\/\d+)?$/);
-    if (mixedMatch) {
-      let inchValue = 0;
-      if (mixedMatch[1]) {
-        inchValue += parseFloat(mixedMatch[1]);
-      }
-      if (mixedMatch[2]) {
-        const [fNum, fDen] = mixedMatch[2].split("/").map(Number);
-        inchValue += fNum / fDen;
-      }
-      totalInches += inchValue;
-    }
-  }
-
-  return totalInches;
+  return sign ? -totalInches : totalInches;
 }
 
 function inchesToImperial(inches) {
@@ -190,13 +178,24 @@ function addOperator(op) {
   if (currentResultInches !== null && value === "") {
     const resultStr = formatResult(currentResultInches);
     input.value = resultStr + " " + op + " ";
-  } else if (value && !value.endsWith(" ")) {
+  } else if (/ [+\-*/]$/.test(value)) {
+    // Already ends with an operator: swap it for the new one
+    input.value = value.slice(0, -1) + op + " ";
+  } else if (value) {
     // Add operator to current input
     input.value = value + " " + op + " ";
   }
 
   // Move cursor to end
   input.focus();
+  input.setSelectionRange(input.value.length, input.value.length);
+}
+
+// Put the cursor back in the input (at the end) so typing can continue after clicking a button.
+// preventScroll keeps the page from jumping when this runs from further down, e.g. the history list.
+function focusInput() {
+  const input = document.getElementById("equationInput");
+  input.focus({ preventScroll: true });
   input.setSelectionRange(input.value.length, input.value.length);
 }
 
@@ -260,16 +259,32 @@ function parseEquation(equation) {
   let values = [];
   let operators = [];
 
-  for (let token of parts) {
-    if (["+", "-", "*", "/"].includes(token)) {
+  // Tokens must alternate: measurement, operator, measurement, ...
+  parts.forEach((token, index) => {
+    const isOperator = ["+", "-", "*", "/"].includes(token);
+    const expectOperator = index % 2 === 1;
+
+    if (isOperator !== expectOperator) {
+      throw new Error(
+        isOperator
+          ? `Missing a measurement before "${token}"`
+          : `Missing an operator before "${token}"`
+      );
+    }
+
+    if (isOperator) {
       operators.push(token);
     } else {
       const inches = parseImperialInput(token);
       if (isNaN(inches)) {
-        throw new Error("Invalid measurement: " + token);
+        throw new Error(`Can't read "${token}". Try formats like 3' 6", 6 1/2" or .5`);
       }
       values.push(inches);
     }
+  });
+
+  if (values.length !== operators.length + 1) {
+    throw new Error("Missing a measurement at the end");
   }
 
   // Order of operations: multiply and divide first
@@ -348,6 +363,8 @@ function calculateResult() {
     unitConvertBtn.disabled = true;
     decimalConvertBtn.disabled = true;
   }
+
+  focusInput();
 }
 
 function updateConvertButtons() {
@@ -376,6 +393,7 @@ function toggleUnitDisplay() {
   currentResult = resultFormatted;
 
   updateConvertButtons();
+  focusInput();
 }
 
 function toggleDecimalDisplay() {
@@ -387,6 +405,7 @@ function toggleDecimalDisplay() {
   currentResult = resultFormatted;
 
   updateConvertButtons();
+  focusInput();
 }
 
 function clearAll() {
@@ -397,6 +416,7 @@ function clearAll() {
   currentResultInches = null;
   document.getElementById("unitConvertBtn").disabled = true;
   document.getElementById("decimalConvertBtn").disabled = true;
+  focusInput();
 }
 
 function addToHistory(equation, result) {
@@ -476,6 +496,7 @@ function confirmAction() {
 function closeModal() {
   document.getElementById("confirmModal").classList.remove("show");
   pendingModalAction = null;
+  focusInput();
 }
 
 // Allow Enter key to calculate
@@ -483,6 +504,26 @@ document.getElementById("equationInput").addEventListener("keypress", function (
   if (e.key === "Enter") {
     calculateResult();
   }
+});
+
+// Numeric keypad operator keys act like the operator buttons (adding the spaces).
+// The keypad's "/" is left alone so it can type fractions; the keypad's "=" divides instead.
+const NUMPAD_OPERATORS = {
+  NumpadAdd: "+",
+  NumpadSubtract: "-",
+  NumpadMultiply: "*",
+  NumpadEqual: "/",
+};
+
+document.getElementById("equationInput").addEventListener("keydown", function (e) {
+  const op = NUMPAD_OPERATORS[e.code];
+  if (!op) return;
+
+  // With nothing to operate on, let "-" through so a negative number can be typed
+  if (op === "-" && this.value.trim() === "" && currentResultInches === null) return;
+
+  e.preventDefault();
+  addOperator(op);
 });
 
 // When the number pad is showing, stop the phone's own keyboard from popping up over it
